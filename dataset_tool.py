@@ -165,18 +165,23 @@ def open_cifar10(tarball: str, *, max_images: Optional[int]):
 
     images = np.concatenate(images)
     labels = np.concatenate(labels)
-    images = images.transpose([0, 2, 3, 1]) # NCHW -> NHWC
+    images = images.transpose([0, 2, 3, 1])  # NCHW -> NHWC
+
+    # Debugging: Check unique labels
+    unique_labels = np.unique(labels)
+    print(f"Unique labels in the dataset: {unique_labels}")
+
     assert images.shape == (50000, 32, 32, 3) and images.dtype == np.uint8
     assert labels.shape == (50000,) and labels.dtype in [np.int32, np.int64]
     assert np.min(images) == 0 and np.max(images) == 255
-    assert np.min(labels) == 0 and np.max(labels) == 9
+    assert np.min(labels) == 0 and np.max(labels) == 9  # Ensure labels are within 0-9
 
     max_idx = maybe_min(len(images), max_images)
 
     def iterate_images():
         for idx, img in enumerate(images):
             yield dict(img=img, label=int(labels[idx]))
-            if idx >= max_idx-1:
+            if idx >= max_idx - 1:
                 break
 
     return max_idx, iterate_images()

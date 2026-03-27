@@ -209,8 +209,8 @@ def training(config, workdir, mode):
                 optimizer.step()
 
                 if (state['step'] + 1) % config.train.log_freq == 0 and config.setup.global_rank == 0:
-                    logging.info('Loss: %.4f, step: %d' %
-                                 (loss, state['step'] + 1))
+                    logging.info('Epoch: %d, Loss: %.4f, step: %d' %
+                                 (epoch + 1, loss, state['step'] + 1))
                 dist.barrier()
 
                 state['step'] += 1

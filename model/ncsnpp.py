@@ -56,7 +56,8 @@ class NCSNpp(nn.Module):
                  init_scale=0.,
                  combine_method='sum',
                  fourier_scale=16,
-                 nonlinearity='swish'):
+                 nonlinearity='swish',
+                 conditional=True):
 
         super().__init__()
 
@@ -69,7 +70,7 @@ class NCSNpp(nn.Module):
         self.all_resolutions = all_resolutions = [
             image_size // (2 ** i) for i in range(num_resolutions)]
 
-        self.conditional = conditional = True  # noise-conditional
+        self.conditional = conditional  # noise-conditional
         self.skip_rescale = skip_rescale
         self.resblock_type = resblock_type
         self.progressive = progressive
@@ -271,7 +272,15 @@ class NCSNpp(nn.Module):
         if self.conditional:
             if self.label_dim is not None:
                 if y is not None:
-                    temb = temb + modules[m_idx](y)
+                    # print("temb shape:", temb.shape)
+                    # print(f"y shape: {y.shape}, y: {y}","max:", y.max().item(), "min:", y.min().item())
+                    # print(f"label_dim: {self.label_dim}")
+                    # print("modules[m_idx]:", modules[m_idx])
+                    out_y = modules[m_idx](y)
+                    # print("modules[m_idx](y) shape:", out_y.shape)
+                    # print("out_y:", out_y)
+                    temb = temb + out_y
+                    # temb = temb + modules[m_idx](y)
                 else:
                     raise ValueError('Need to give a class label.')
                 m_idx += 1
